@@ -62,3 +62,6 @@ figOut(results7, "winrate_7.png")
 dualAxis(results, "dualWin.png")
 dualAxis(results30, "dualWin30.png")
 dualAxis(results7, "dualWin7.png")
+
+with open("results.txt", mode="w") as f:
+    f.write(results.T.to_csv())
