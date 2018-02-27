@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, BigInteger, Boolean, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from pandas import Series
+from pandas import Series, DataFrame
 import replay
 from heroTools import heroByID, heroShortName
 from math import sqrt
@@ -58,6 +58,28 @@ def buildTable(query, hero_id):
                              (output['Wins'] + output['Losses'])
         output['Stat. Error'] = output['Win Rate'] /\
                                 sqrt(output['Wins'] + output['Losses'])
+
+    return output
+
+
+def buildTableTime(query, hero_id):
+    output = DataFrame(index=['Time', 'ID', 'Name', 'Win', 'Loss'])
+    name = heroShortName[heroByID[hero_id]]
+
+    for r in query.all():
+        i = Series()
+        i['Time'] = r.start_time
+        i['ID'] = hero_id
+        i['Name'] = name
+
+        if r.win:
+            i['Win'] = 1
+            i['Loss'] = 0
+        else:
+            i['Win'] = 0
+            i['Loss'] = 1
+        
+        output = output.append(i)
 
     return output
 
