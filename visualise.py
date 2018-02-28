@@ -1,9 +1,12 @@
 from player import getHeroResults, getFilteredHeroResults, Player
+from player import getHeroResultsTime
 from replay import Replay
 from database import getSession
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 import datetime
+#from math import sqrt
+from numpy import sqrt
 
 results = DataFrame()
 results30 = DataFrame()
@@ -63,5 +66,45 @@ dualAxis(results, "dualWin.png")
 dualAxis(results30, "dualWin30.png")
 dualAxis(results7, "dualWin7.png")
 
-with open("results.txt", mode="w") as f:
-    f.write(results.T.to_csv())
+
+def outFile(table, file):
+    with open(file, mode="w") as f:
+        f.write(table.T.to_csv())
+
+
+outFile(results, "winrate.txt")
+outFile(results30, "winrate_30.txt")
+outFile(results7, "winrate_7.txt")
+
+#Lycan
+lycan = getHeroResultsTime(session, 77)
+lycan = lycan.resample('M').sum()
+
+dark_seer = getHeroResultsTime(session, 55)
+dark_seer = dark_seer.resample('M').sum()
+
+sf = getHeroResultsTime(session, 11)
+sf = sf.resample('M').sum()
+
+lina = getHeroResultsTime(session, 25)
+lina = lina.resample('M').sum()
+
+def plotConfLine(table, axis, colour="red", alpha=0.5):
+    table['WinRate'] = table['Win'] / (table['Loss'] + table['Win'])
+    table['Error'] = 1 / sqrt(table['Win'] + table['Loss'])
+    table['MinRate'] = table['WinRate'] - table['Error'] * table['WinRate']
+    table['MaxRate'] = table['WinRate'] + table['Error'] * table['WinRate']
+    
+    table.plot(y="WinRate", ax=axis, color=colour)
+    #print(table)
+    axis.fill_between(table.index, table['MinRate'], table['MaxRate'],
+                      facecolor=colour, alpha=alpha, interpolate=True)
+
+
+
+fig, axis = plt.subplots()
+plotConfLine(lycan, axis=axis, colour='red')
+plotConfLine(dark_seer, axis=axis, colour='green')
+plotConfLine(sf, axis=axis, colour='blue')
+plotConfLine(lina, axis=axis, colour='yellow')
+axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])

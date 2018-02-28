@@ -63,30 +63,39 @@ def buildTable(query, hero_id):
 
 
 def buildTableTime(query, hero_id):
-    output = DataFrame(index=['Time', 'ID', 'Name', 'Win', 'Loss'])
+    output = DataFrame(index=['Time'])
     name = heroShortName[heroByID[hero_id]]
 
-    for r in query.all():
+    for p, r in query.all():
         i = Series()
         i['Time'] = r.start_time
         i['ID'] = hero_id
         i['Name'] = name
 
-        if r.win:
+        if p.win:
             i['Win'] = 1
             i['Loss'] = 0
         else:
             i['Win'] = 0
             i['Loss'] = 1
-        
-        output = output.append(i)
 
+        output = output.append(i, ignore_index=True)
+
+    output = output.set_index('Time')
     return output
 
 
 def getHeroResults(session, hero_id):
     query = session.query(Player).filter(Player.hero_id == hero_id)
     return buildTable(query, hero_id)
+
+
+def getHeroResultsTime(session, hero_id):
+    query = session.query(Player, replay.Replay).\
+                    join(replay.Replay).\
+                    filter(Player.hero_id == hero_id)
+
+    return buildTableTime(query, hero_id)
 
 
 def importOdotaJSON(data, session):
