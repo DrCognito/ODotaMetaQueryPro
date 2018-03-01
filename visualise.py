@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import datetime
 #from math import sqrt
 from numpy import sqrt
+import pygsheets
 
 results = DataFrame()
 results30 = DataFrame()
@@ -108,3 +109,17 @@ plotConfLine(dark_seer, axis=axis, colour='green')
 plotConfLine(sf, axis=axis, colour='blue')
 plotConfLine(lina, axis=axis, colour='yellow')
 axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])
+
+
+
+gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
+
+sheet = gc.open("All Results")
+
+sheetAll = sheet.worksheet_by_title("All")
+sheetWeek = sheet.worksheet_by_title("Week")
+sheetMonth = sheet.worksheet_by_title("Month")
+
+sheetAll.set_dataframe(df=results.T, start="A1")
+sheetWeek.set_dataframe(df=results7.T, start="A1")
+sheetMonth.set_dataframe(df=results30.T, start="A1")
