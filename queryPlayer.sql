@@ -5,4 +5,4 @@ public_player_matches.hero_id
 FROM public_matches
 JOIN public_player_matches using(match_id)
 WHERE public_player_matches.match_id IN (REPLAY_LIST)
-LIMIT 200;
+LIMIT 2000;
