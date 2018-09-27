@@ -48,7 +48,7 @@ def updatePlayers(session=getSession()):
     print("Retrieving players for {} matches.".format(len(todo)))
 
     # We get max 10 players per match, targetting 200 results per query.
-    for section in chunker(todo, 20):
+    for section in chunker(todo, 200):
         playerData = odota.getPlayers(section)
         if playerData is None:
             print("Exiting due to no playerData retrieved for section:\n{}."
