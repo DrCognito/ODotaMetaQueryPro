@@ -10,10 +10,13 @@ name = "pypi"
 opendota = "*"
 "flake8" = "*"
 dotatools = "*"
-SQLAlchemy = "*"
+sqlalchemy = "*"
 pandas = "*"
 matplotlib = "*"
 pygsheets = "*"
+requests = "*"
+"urllib3" = "*"
+scipy = "*"
 
 
 [dev-packages]
