@@ -18,14 +18,16 @@ Past30 = now - datetime.timedelta(days=30)
 Past7 = now - datetime.timedelta(days=7)
 
 session = getSession()
-#
+skillFilter = (Replay.avg_rank_tier >= 75,)
 
 for hero_id in session.query(Player.hero_id).distinct():
     heroFilter = (Player.hero_id == hero_id[0],)
-    replay30Filter = (Replay.start_time >= Past30,)
-    replay7Filter = (Replay.start_time >= Past7, )
+    replay30Filter = (Replay.start_time >= Past30,) + skillFilter
+    replay7Filter = (Replay.start_time >= Past7, ) + skillFilter
 
-    h = getHeroResults(session, hero_id[0])
+    #h = getHeroResults(session, hero_id[0])
+    h = getFilteredHeroResults(session, hero_id[0], heroFilter,
+                               skillFilter)
     h30 = getFilteredHeroResults(session, hero_id[0], heroFilter,
                                  replay30Filter)
     h7 = getFilteredHeroResults(session, hero_id[0], heroFilter, replay7Filter)
