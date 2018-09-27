@@ -48,7 +48,11 @@ def getLatestReplayID(session):
 
 def importOdotaJSON(data, session):
     try:
+        if data is None:
+            return
         for r in data:
+            if r['avg_rank_tier'] is None:
+                continue
             r['start_time'] = datetime.datetime.fromtimestamp(r['start_time'])
             newReplay = Replay(**r)
             session.add(newReplay)
