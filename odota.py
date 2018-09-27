@@ -23,19 +23,30 @@ def getReplays(timeCut=Patch_7_07, offSet=0):
         query = query.replace("REP_OFFSET", str(offSet))
 
         rows = []
-        r = requests.get(url, params={'sql': query})
         time.sleep(1)
-        if r.status_code != requests.codes.ok:
+        try:
+            r = requests.get(url, params={'sql': query})
+        except requests.exceptions.RequestException as e:
+            print("Exception raised:\n", e)
+            print("Input url:", url)
+            print("Input query:", query)
+            return
+
+        requestOK = r.status_code == requests.codes.ok
+        if not requestOK:
             print("Bad status code for {} returned {}".format(r.url,
                                                               r.status_code))
             print("Query was:\n{}".format(query))
             return
         data = r.json()
         # We grab 200 at once so if we get 200 presumably theres more.
-        if data['rowCount'] == 200:
+        if requestOK and data['rowCount'] == 200:
             rows += data['rows']
-            rows += getReplays(timeCut, offSet + 200)
-        else:
+            extra = getReplays(timeCut, offSet + 200)
+            # Guard against bad requests returning none
+            if extra:
+                rows += extra
+        elif requestOK:
             rows += data['rows']
 
         return rows
@@ -76,3 +87,7 @@ def getCount(timeCut=Patch_7_07):
             return
         data = r.json()
         return data['rows'][0]['count']
+
+
+if __name__ == "__main__":
+    print(getCount())
