@@ -1,13 +1,13 @@
 SELECT
-public_matches.duration,
-public_matches.match_id,
-public_matches.radiant_win,
-public_matches.avg_mmr,
-public_matches.avg_rank_tier,
-((public_player_matches.player_slot < 128) = public_matches.radiant_win) win,
-public_player_matches.player_slot,
-public_player_matches.hero_id
-FROM public_matches
-JOIN public_player_matches using(match_id)
-WHERE public_matches.avg_mmr > 5000
-LIMIT 20
+matches.match_id,
+matches.radiant_win,
+matches.start_time,
+matches.game_mode,
+matches.dire_team_id,
+matches.radiant_team_id,
+matches.leagueid,
+matches.version,
+matches.picks_bans
+FROM matches
+WHERE matches.match_id > %MINIMUM_ID% AND matches.start_time > %MINIMUM_TIME%
+LIMIT 200
