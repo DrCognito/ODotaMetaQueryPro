@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, DateTime, Float
+from sqlalchemy import Column, Integer, BigInteger, DateTime, Float, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,11 +13,13 @@ class Replay(Base):
     __tablename__ = "replays"
 
     match_id = Column(BigInteger, primary_key=True)
+    radiant_win = Column(Boolean)
     start_time = Column(DateTime)
-    duration = Column(Integer)
-    avg_mmr = Column(Integer)
-    avg_rank_tier = Column(Float)
     game_mode = Column(Integer)
+    dire_team_id = Column(Integer)
+    radiant_team_id = Column(Integer)
+    leagueid = Column(Integer)
+    version = Column(Integer)
 
 
 engine = create_engine('sqlite:///public_data.db', echo=False)
