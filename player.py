@@ -14,6 +14,9 @@ class Player(Base):
     match_id = Column(BigInteger, ForeignKey(replay.Replay.match_id),
                       primary_key=True)
     hero_id = Column(Integer, primary_key=True)
+    is_pick = Column(Boolean)
+    team = Column(Integer)
+    order = Column(Integer)
     win = Column(Boolean)
 
 
