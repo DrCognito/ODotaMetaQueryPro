@@ -1,5 +1,6 @@
 import requests
 import time
+from datetime import datetime, timedelta
 from replay import Patch_7_07
 
 url = "https://api.opendota.com/api/explorer"
@@ -73,10 +74,11 @@ def getPlayers(matchList):
 
 def getCount(timeCut=Patch_7_07):
     timeStr = str(timeCut.timestamp())
+    past_month = str((datetime.today() - timedelta(days=30)).timestamp())
 
     with open('count.sql', 'r') as sql:
         query = sql.read()
-        query = query.replace("REP_TIME", timeStr)
+        query = query.replace("%MINIMUM_TIME%", past_month)
 
         r = requests.get(url, params={'sql': query})
 
