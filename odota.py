@@ -14,13 +14,14 @@ url = "https://api.opendota.com/api/explorer"
 # print(r.json())
 
 
-def getReplays(timeCut=Patch_7_07, offSet=0):
+def getReplays(timeCut=Patch_7_07, latest_id=0, offSet=0):
     print("Getting replays {} to {} (max)".format(offSet, offSet+200))
     timeStr = timeCut.timestamp()
 
-    with open('queryReplay.sql', 'r') as sql:
+    with open('query.sql', 'r') as sql:
         query = sql.read()
-        query = query.replace("REP_TIME", str(timeStr))
+        query = query.replace("%MINIMUM_TIME%", str(timeStr))
+        query = query.replace("%MINIMUM_ID%", str(latest_id))
         query = query.replace("REP_OFFSET", str(offSet))
 
         rows = []
@@ -43,7 +44,7 @@ def getReplays(timeCut=Patch_7_07, offSet=0):
         # We grab 200 at once so if we get 200 presumably theres more.
         if requestOK and data['rowCount'] == 200:
             rows += data['rows']
-            extra = getReplays(timeCut, offSet + 200)
+            extra = getReplays(timeCut, latest_id, offSet + 200)
             # Guard against bad requests returning none
             if extra:
                 rows += extra
