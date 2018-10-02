@@ -8,4 +8,3 @@ currentTime = Patch_7_07
 session = database.getSession()
 
 database.updateReplays(Patch_7_07, session)
-database.updatePlayers(session)
