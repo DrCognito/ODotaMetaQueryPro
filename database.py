@@ -17,13 +17,14 @@ def getSession():
 
 def updateReplays(timeCut, session=getSession()):
     latestDBTime = replay.getLatestTime(session)
+    latest_ID = replay.getLatestReplayID(session)
 
     if latestDBTime > timeCut:
         print("timeCut moved to {} from the latest replay in the database."
               .format(latestDBTime))
         timeCut = latestDBTime
 
-    replays = odota.getReplays(timeCut)
+    replays = odota.getReplays(timeCut, latest_ID)
     replay.importOdotaJSON(replays, session)
 
 
