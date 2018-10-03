@@ -17,7 +17,6 @@ class Player(Base):
     is_pick = Column(Boolean)
     team = Column(Integer)
     order = Column(Integer)
-    win = Column(Boolean)
 
 
 engine = create_engine('sqlite:///public_data.db', echo=False)
@@ -101,16 +100,14 @@ def getHeroResultsTime(session, hero_id):
     return buildTableTime(query, hero_id)
 
 
-def importOdotaJSON(data, session):
+def importOdotaJSON(match_id, data, session):
     try:
         for r in data:
             if r['hero_id'] == 0:
                 print("Skipped invalid hero in {}".format(r['match_id']))
                 continue
-            newPlayer = Player(**r)
-            #newPlayer = Player(match_id=r[0], hero_id=r[1], win=data[r])
+            newPlayer = Player(**r, match_id=match_id)
             session.add(newPlayer)
-            #session.commit()
     except Exception:
         session.rollback()
         raise
