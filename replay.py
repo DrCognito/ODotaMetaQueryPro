@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, BigInteger, DateTime, Float, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound
+from player import importOdotaJSON as odota_json_player
+from json import loads
 import datetime
 
 Base = declarative_base()
@@ -53,11 +55,15 @@ def importOdotaJSON(data, session):
         if data is None:
             return
         for r in data:
-            if r['avg_rank_tier'] is None:
-                continue
             r['start_time'] = datetime.datetime.fromtimestamp(r['start_time'])
+            player_data = r['picks_bans']
+            del(r['picks_bans'])
+
             newReplay = Replay(**r)
             session.add(newReplay)
+
+            odota_json_player(r['match_id'], player_data, session)
+
     except Exception:
         session.rollback()
         raise
