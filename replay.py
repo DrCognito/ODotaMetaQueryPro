@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, BigInteger, DateTime, Float, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound
-from player import importOdotaJSON as odota_json_player
 from json import loads
 import datetime
 
@@ -51,6 +50,7 @@ def getLatestReplayID(session):
 
 
 def importOdotaJSON(data, session):
+    from player import importOdotaJSON as odota_json_player
     try:
         if data is None:
             return
