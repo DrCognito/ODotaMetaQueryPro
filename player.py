@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, BigInteger, Boolean, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from pandas import Series, DataFrame
-import replay
+#import .replay
+from replay import Replay
 from heroTools import heroByID, heroShortName
 from math import sqrt
 
@@ -11,7 +12,7 @@ Base = declarative_base()
 class Player(Base):
     __tablename__ = "players"
 
-    match_id = Column(BigInteger, ForeignKey(replay.Replay.match_id),
+    match_id = Column(BigInteger, ForeignKey(Replay.match_id),
                       primary_key=True)
     hero_id = Column(Integer, primary_key=True)
     is_pick = Column(Boolean)
@@ -32,8 +33,8 @@ def getFilteredHeroResults(session, hero_id, playerFilter=None, replayFilter=Non
        which expands as the following session.query(Replays).filter(*replayFilter)
        '''
 
-    subquery = session.query(replay.Replay.match_id).filter(*replayFilter)
-    #subquery = session.query(replay.Replay.match_id).filter(replay.Replay.start_time >= replayFilter)
+    subquery = session.query(Replay.match_id).filter(*replayFilter)
+    #subquery = session.query(Replay.match_id).filter(Replay.start_time >= replayFilter)
     query = session.query(Player).filter(*playerFilter)
     query = query.filter(Player.match_id.in_(subquery))
 
@@ -93,8 +94,8 @@ def getHeroResults(session, hero_id):
 
 
 def getHeroResultsTime(session, hero_id):
-    query = session.query(Player, replay.Replay).\
-                    join(replay.Replay).\
+    query = session.query(Player, Replay).\
+                    join(Replay).\
                     filter(Player.hero_id == hero_id)
 
     return buildTableTime(query, hero_id)
