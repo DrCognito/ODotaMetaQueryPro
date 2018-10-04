@@ -25,7 +25,7 @@ def getReplays(timeCut=Patch_7_07, latest_id=0, offSet=0):
         query = query.replace("REP_OFFSET", str(offSet))
 
         rows = []
-        time.sleep(1)
+        time.sleep(2)
         try:
             r = requests.get(url, params={'sql': query})
         except requests.exceptions.RequestException as e:
