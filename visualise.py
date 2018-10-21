@@ -1,5 +1,5 @@
 from player import getHeroResults, getFilteredHeroResults, Player
-from player import getHeroResultsTime
+from player import getHeroResultsTime, getFilteredResults
 from replay import Replay
 from database import getSession
 from pandas import DataFrame
@@ -18,24 +18,25 @@ Past30 = now - datetime.timedelta(days=30)
 Past7 = now - datetime.timedelta(days=7)
 
 session = getSession()
-skillFilter = (Replay.avg_rank_tier >= 75,)
+# skillFilter = (Replay.avg_rank_tier >= 75,)
 
-for hero_id in session.query(Player.hero_id).distinct():
-    heroFilter = (Player.hero_id == hero_id[0],)
-    replay30Filter = (Replay.start_time >= Past30,) + skillFilter
-    replay7Filter = (Replay.start_time >= Past7, ) + skillFilter
+# for hero_id in session.query(Player.hero_id).distinct():
+#     heroFilter = (Player.hero_id == hero_id[0],)
+#     replay30Filter = (Replay.start_time >= Past30,)
+#     replay7Filter = (Replay.start_time >= Past7, )
 
-    #h = getHeroResults(session, hero_id[0])
-    h = getFilteredHeroResults(session, hero_id[0], heroFilter,
-                               skillFilter)
-    h30 = getFilteredHeroResults(session, hero_id[0], heroFilter,
-                                 replay30Filter)
-    h7 = getFilteredHeroResults(session, hero_id[0], heroFilter, replay7Filter)
+#     #h = getHeroResults(session, hero_id[0])
+#     h = getFilteredHeroResults(session, hero_id[0], heroFilter)
+#     h30 = getFilteredHeroResults(session, hero_id[0], heroFilter,
+#                                  replay30Filter)
+#     h7 = getFilteredHeroResults(session, hero_id[0], heroFilter, replay7Filter)
 
-    results[h['Name']] = h
-    results30[h30['Name']] = h30
-    results7[h7['Name']] = h7
-
+#     results[h['Name']] = h
+#     results30[h30['Name']] = h30
+#     results7[h7['Name']] = h7
+results7 = getFilteredResults(session, (Replay.start_time >= Past7,))
+results = getFilteredResults(session, (Replay.start_time >= Past7,))
+results30 = getFilteredResults(session, (Replay.start_time >= Past7,))
 
 def figOut(table, path):
     table = table.T
@@ -114,14 +115,14 @@ axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])
 
 
 
-gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
+# gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
 
-sheet = gc.open("All Results")
+# sheet = gc.open("All Results")
 
-sheetAll = sheet.worksheet_by_title("All")
-sheetWeek = sheet.worksheet_by_title("Week")
-sheetMonth = sheet.worksheet_by_title("Month")
+# sheetAll = sheet.worksheet_by_title("All")
+# sheetWeek = sheet.worksheet_by_title("Week")
+# sheetMonth = sheet.worksheet_by_title("Month")
 
-sheetAll.set_dataframe(df=results.T, start="A1")
-sheetWeek.set_dataframe(df=results7.T, start="A1")
-sheetMonth.set_dataframe(df=results30.T, start="A1")
+# sheetAll.set_dataframe(df=results.T, start="A1")
+# sheetWeek.set_dataframe(df=results7.T, start="A1")
+# sheetMonth.set_dataframe(df=results30.T, start="A1")
