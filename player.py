@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, BigInteger, Boolean, ForeignKey, create_engine
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, case
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import select
@@ -52,48 +52,39 @@ def getFilteredHeroResults(session, hero_id, playerFilter=None, replayFilter=Non
 def getFilteredResults(session, replayFilter=None):
 
     if replayFilter is not None:
-        replayFilter_win = and_(Replay.radiant_win == 1, *replayFilter)
-        replayFilter_loss = and_(Replay.radiant_win == 0, *replayFilter)
+        replayFilter = and_(Player.is_pick == True, *replayFilter)
     else:
-        replayFilter_win = (Replay.radiant_win == 1)
-        replayFilter_loss = (Replay.radiant_win == 0)
+        replayFilter = Player.is_pick == True
 
-    subquery_win = session.query(Replay.match_id)\
-                          .filter(replayFilter_win)
-    subquery_lose = session.query(Replay.match_id)\
-                           .filter(replayFilter_loss)
+    # Count player wins with a case expression.
+    # Unfortunately radiant is team 0, and radiant wins are tracked.
+    count_expression = case([(Player.team != Replay.radiant_win, 1)], else_=0)
+    query = session.query(Player.hero_id,
+                          func.sum(count_expression),
+                          func.count(Player.hero_id))\
+                   .join(Replay, Replay.match_id == Player.match_id)\
+                   .filter(replayFilter)\
+                   .group_by(Player.hero_id)
 
     output = DataFrame(columns=['Name', 'Wins', 'Losses', 'Picks',
-                                'Win Rate'])
+                                'Win Rate', 'Stat. Error'])
 
-    r_win = session.query(Player.hero_id, Player.team, func.count(Player.hero_id))\
-            .join(subquery_win)\
-            .filter(and_(Replay.radiant_win == 1, Player.is_pick == 1))\
-            .group_by(Replay.match_id, Player.hero_id, Player.team)
-    r_lose = session.query(Player.hero_id, Player.team, func.count(Player.hero_id))\
-             .join(subquery_lose)\
-             .filter(and_(Replay.radiant_win == 1, Player.is_pick == 1))\
-             .group_by(Replay.match_id, Player.hero_id, Player.team)
+    for h_id, wins, picks in query:
+        name = heroShortName[heroByID[h_id]]
+        if h_id not in output.index:
+            output.loc[name] = 0
+        output['Name'][name] = name
+        output['Wins'][name] = wins
+        output['Picks'][name] = picks
 
-    def _process_rows(query, radiant_win):
-        for h_id, team, count in query:
-            name = heroShortName[heroByID[h_id]]
-            if name not in output.index:
-                output.loc[name] = 0
-            if team == 0 and radiant_win:
-                output['Wins'][name] += count
-            else:
-                output['Losses'][name] += count
+    output['Losses'] = output['Picks'] - output['Wins']
 
-    _process_rows(r_win, radiant_win=True)
-    _process_rows(r_lose, radiant_win=False)
-
-    for h in output:
-        if output['Wins'] + output['Losses'] != 0:
-            output['Win Rate'] = output['Wins'] /\
-                             (output['Wins'] + output['Losses'])
-            output['Stat. Error'] = output['Win Rate'] /\
-                sqrt(output['Wins'] + output['Losses'])
+    for h in output.index:
+        if output['Wins'][h] + output['Losses'][h] != 0:
+            output['Win Rate'][h] = output['Wins'][h] /\
+                             (output['Wins'][h] + output['Losses'][h])
+            output['Stat. Error'][h] = output['Win Rate'][h] /\
+                sqrt(output['Wins'][h] + output['Losses'][h])
 
     return output
 
