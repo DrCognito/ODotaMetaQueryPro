@@ -1,6 +1,7 @@
 from player import getHeroResults, getFilteredHeroResults, Player
 from player import getHeroResultsTime, getFilteredResults
 from replay import Replay
+from player import Player
 from database import getSession
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -35,11 +36,11 @@ session = getSession()
 #     results30[h30['Name']] = h30
 #     results7[h7['Name']] = h7
 results7 = getFilteredResults(session, (Replay.start_time >= Past7,))
-results = getFilteredResults(session, (Replay.start_time >= Past7,))
-results30 = getFilteredResults(session, (Replay.start_time >= Past7,))
+results = getFilteredResults(session)
+results30 = getFilteredResults(session, (Replay.start_time >= Past30,))
 
 def figOut(table, path):
-    table = table.T
+    #table = table.T
     table = table.sort_values(by=['Win Rate', 'Name'])
     table['Win Rate'].plot.barh(figsize=(9, 11), xlim=(0.2, 0.8),
                                 xerr=table['Stat. Error'])
@@ -51,7 +52,7 @@ def figOut(table, path):
 
 def dualAxis(table, path):
     fig, ax1 = plt.subplots()
-    table = table.T
+    #table = table.T
     table = table.sort_values(by=['Win Rate', 'Name'])
 
     table['Win Rate'][0:25].plot(figsize=(9, 11), ax=ax1)
@@ -76,22 +77,22 @@ def outFile(table, file):
         f.write(table.T.to_csv())
 
 
-outFile(results, "winrate.txt")
-outFile(results30, "winrate_30.txt")
-outFile(results7, "winrate_7.txt")
+# outFile(results, "winrate.txt")
+# outFile(results30, "winrate_30.txt")
+# outFile(results7, "winrate_7.txt")
 
 #Lycan
-lycan = getHeroResultsTime(session, 77)
-lycan = lycan.resample('M').sum()
+# lycan = getHeroResultsTime(session, 77)
+# lycan = lycan.resample('M').sum()
 
-dark_seer = getHeroResultsTime(session, 55)
-dark_seer = dark_seer.resample('M').sum()
+# dark_seer = getHeroResultsTime(session, 55)
+# dark_seer = dark_seer.resample('M').sum()
 
-sf = getHeroResultsTime(session, 11)
-sf = sf.resample('M').sum()
+# sf = getHeroResultsTime(session, 11)
+# sf = sf.resample('M').sum()
 
-lina = getHeroResultsTime(session, 25)
-lina = lina.resample('M').sum()
+# lina = getHeroResultsTime(session, 25)
+# lina = lina.resample('M').sum()
 
 def plotConfLine(table, axis, colour="red", alpha=0.5):
     table['WinRate'] = table['Win'] / (table['Loss'] + table['Win'])
@@ -106,23 +107,23 @@ def plotConfLine(table, axis, colour="red", alpha=0.5):
 
 
 
-fig, axis = plt.subplots()
-plotConfLine(lycan, axis=axis, colour='red')
-plotConfLine(dark_seer, axis=axis, colour='green')
-plotConfLine(sf, axis=axis, colour='blue')
-plotConfLine(lina, axis=axis, colour='yellow')
-axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])
+# fig, axis = plt.subplots()
+# plotConfLine(lycan, axis=axis, colour='red')
+# plotConfLine(dark_seer, axis=axis, colour='green')
+# plotConfLine(sf, axis=axis, colour='blue')
+# plotConfLine(lina, axis=axis, colour='yellow')
+# axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])
 
 
 
-# gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
+gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
 
-# sheet = gc.open("All Results")
+sheet = gc.open("All Results")
 
-# sheetAll = sheet.worksheet_by_title("All")
-# sheetWeek = sheet.worksheet_by_title("Week")
-# sheetMonth = sheet.worksheet_by_title("Month")
+sheetAll = sheet.worksheet_by_title("All")
+sheetWeek = sheet.worksheet_by_title("Week")
+sheetMonth = sheet.worksheet_by_title("Month")
 
-# sheetAll.set_dataframe(df=results.T, start="A1")
-# sheetWeek.set_dataframe(df=results7.T, start="A1")
-# sheetMonth.set_dataframe(df=results30.T, start="A1")
+sheetAll.set_dataframe(df=results, start="A1")
+sheetWeek.set_dataframe(df=results7, start="A1")
+sheetMonth.set_dataframe(df=results30, start="A1")
