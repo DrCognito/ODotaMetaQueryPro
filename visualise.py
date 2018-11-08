@@ -1,9 +1,10 @@
 from player import getHeroResults, getFilteredHeroResults, Player
 from player import getHeroResultsTime, getFilteredResults
+from amateur_player import get_results_query
 from replay import Replay
 from player import Player
 from database import getSession
-from pandas import DataFrame
+from pandas import DataFrame, read_sql
 import matplotlib.pyplot as plt
 import datetime
 #from math import sqrt
@@ -114,16 +115,33 @@ def plotConfLine(table, axis, colour="red", alpha=0.5):
 # plotConfLine(lina, axis=axis, colour='yellow')
 # axis.legend(["Lycan", "Dark Seer", "ShadowFiend", "Lina"])
 
+start_day = datetime.datetime.now()
+start_day = datetime.datetime(start_day.year, start_day.month, start_day.day)
+past_week = start_day - datetime.timedelta(days=7)
+past_30 = start_day - datetime.timedelta(days=30)
 
+amateur_query = get_results_query(session, start_day, past_week)
+ama_table = read_sql(amateur_query.statement, session.bind)
+ama_table['win rate'] = ama_table['wins']/ama_table['picks']
+
+amateur_query_30 = get_results_query(session, start_day, past_30)
+ama_table_30 = read_sql(amateur_query_30.statement, session.bind)
+ama_table_30['win rate'] = ama_table_30['wins']/ama_table_30['picks']
 
 gc = pygsheets.authorize(outh_file="client_secret_1032893103395-vtiha2lmocsru6nvc96ipnrjj10lue23.apps.googleusercontent.com.json")
 
 sheet = gc.open("All Results")
 
-sheetAll = sheet.worksheet_by_title("All")
-sheetWeek = sheet.worksheet_by_title("Week")
-sheetMonth = sheet.worksheet_by_title("Month")
+sheetAll = sheet.worksheet_by_title("Pro - All")
+sheetWeek = sheet.worksheet_by_title("Pro - Week")
+sheetMonth = sheet.worksheet_by_title("Pro - Month")
 
 sheetAll.set_dataframe(df=results, start="A1")
 sheetWeek.set_dataframe(df=results7, start="A1")
 sheetMonth.set_dataframe(df=results30, start="A1")
+
+sheet_week_ama = sheet.worksheet_by_title("Amateur - 7 days")
+sheet_30_ama = sheet.worksheet_by_title("Amateur - 30 days")
+
+sheet_week_ama.set_dataframe(df=ama_table, start="A1")
+sheet_30_ama.set_dataframe(df=ama_table_30, start="A1")
