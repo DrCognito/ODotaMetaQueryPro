@@ -15,6 +15,10 @@ def getSession():
     return Session()
 
 
+def updateAmateurHeroes(n_days=30, session=getSession()):
+    odota.update_amateur_heroes(session, n_days)
+
+
 def updateReplays(timeCut, session=getSession()):
     latestDBTime = replay.getLatestTime(session)
     latest_ID = replay.getLatestReplayID(session)

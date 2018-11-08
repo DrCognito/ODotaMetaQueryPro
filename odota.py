@@ -2,6 +2,7 @@ import requests
 import time
 from datetime import datetime, timedelta
 from replay import Patch_7_07
+from amateur_player import get_latest_times, time_exists, import_odota_json
 
 url = "https://api.opendota.com/api/explorer"
 # sql = open('queryMin.sql', 'r').read()
@@ -71,6 +72,66 @@ def getPlayers(matchList):
 
     data = r.json()
     return data['rows']
+
+
+def update_amateur_heroes(session, n_days=30, retries=3, reacquire=False):
+    '''Update the winrates per day for each hero in amateur matches.
+       n_days is the maximum number of days to go back.
+       if reacquire is True existing records will be requeried and replaced.
+    '''
+    start_day = datetime.now()
+    start_day = datetime(start_day.year, start_day.month, start_day.day)
+    # start, end = get_latest_times(session)
+
+    # if start == start_day and end < (start_day - timedelta(days=n_days)):
+    #     if not reacquire:
+    #         print("No days to acquire for n_days {}".format(n_days))
+    #         return None
+
+    max_retries = 10
+    failed_attempts = 0
+    for day in range(n_days):
+        rows = []
+        individual_attempts = 0
+        start_time = start_day - timedelta(days=day)
+        end_time = start_time - timedelta(days=1)
+
+        if time_exists(session, start_time) and not reacquire:
+            print("Entries exist for {} to {}".format(start_time, end_time))
+            continue
+        else:
+            print("Processing from {} to {}".format(start_time, end_time))
+
+        with open('queryAmateurHeroes.sql', 'r') as sql:
+            query = sql.read()
+            query = query.replace("%START_TIME%",
+                                  str(start_time.timestamp()))
+            query = query.replace("%ND_TIME%",
+                                  str(end_time.timestamp()))
+
+            finished = False
+            while(not finished):
+                if failed_attempts > max_retries or individual_attempts > 3:
+                    print("Failed to retrieve day {}, from {} to {}"
+                          .format(day, start_time, end_time))
+                    break
+                try:
+                    r = requests.get(url, params={'sql': query})
+                    r.raise_for_status()
+                except requests.exceptions.RequestException as e:
+                    print("Exception raised:\n", e)
+                    print("Input url:", url)
+                    failed_attempts += 1
+                    individual_attempts += 1
+                else:
+                    data = r.json()
+                    rows += data['rows']
+                    finished = True
+
+                time.sleep(3)
+
+        if rows is not None:
+            import_odota_json(start_time, end_time, rows, session)
 
 
 def getCount(timeCut=Patch_7_07):

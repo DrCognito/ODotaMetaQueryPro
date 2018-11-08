@@ -1,13 +1,15 @@
-from sqlalchemy import Column, Integer, BigInteger, Boolean, ForeignKey, create_engine
-from sqlalchemy import and_, func, case
+from math import sqrt
+
+from pandas import DataFrame, Series
+from sqlalchemy import (BigInteger, Boolean, Column, ForeignKey, Integer, and_,
+                        case, create_engine, func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import select
-from pandas import Series, DataFrame
+
+from heroTools import heroByID, heroShortName
 #import .replay
 from replay import Replay
-from heroTools import heroByID, heroShortName
-from math import sqrt
 
 Base = declarative_base()
 
