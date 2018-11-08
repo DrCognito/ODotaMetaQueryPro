@@ -64,3 +64,12 @@ def time_exists(session, time, start_time=True):
         return False
     else:
         return True
+
+
+def get_results_query(session, start: DateTime, end: DateTime):
+    query = session.query(AmateurHero.name, func.sum(AmateurHero.wins).label("wins"),
+                          func.sum(AmateurHero.total).label("picks"))\
+                   .filter(AmateurHero.start_time < start)\
+                   .filter(AmateurHero.end_time >= end)\
+                   .group_by(AmateurHero.hero_id)
+    return query
