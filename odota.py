@@ -115,6 +115,8 @@ def update_amateur_heroes(session, n_days=30, retries=3, reacquire=False):
                     print("Failed to retrieve day {}, from {} to {}"
                           .format(day, start_time, end_time))
                     break
+                if failed_attempts > 0:
+                    print("Attempt {}.".format(failed_attempts + 1))
                 try:
                     r = requests.get(url, params={'sql': query})
                     r.raise_for_status()
