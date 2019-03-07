@@ -115,6 +115,7 @@ heroShortName["npc_dota_hero_monkey_king"] = "Monkey King"
 heroShortName["npc_dota_hero_pangolier"] = "Pang"
 heroShortName["npc_dota_hero_dark_willow"] = "D Willow"
 heroShortName["npc_dota_hero_grimstroke"] = "Grimstroke"
+heroShortName["npc_dota_hero_mars"] = "Mars"
 
 heroByID = {}
 heroByID[1] = "npc_dota_hero_antimage"
@@ -233,6 +234,7 @@ heroByID[114] = "npc_dota_hero_monkey_king"
 heroByID[120] = "npc_dota_hero_pangolier"
 heroByID[119] = "npc_dota_hero_dark_willow"
 heroByID[121] = "npc_dota_hero_grimstroke"
+heroByID[129] = "npc_dota_hero_mars"
 
 HeroLongName = {}
 HeroLongName["AM"] = "npc_dota_hero_antimage"
@@ -351,6 +353,7 @@ HeroLongName["Monkey King"] = "npc_dota_hero_monkey_king"
 HeroLongName["Pang"] = "npc_dota_hero_pangolier"
 HeroLongName["D Willow"] = "npc_dota_hero_dark_willow"
 HeroLongName["Grimstroke"] = "npc_dota_hero_grimstroke"
+HeroLongName["Mars"] = "npc_dota_hero_mars"
 
 HeroIconPrefix = "img/MiniHeroes/"
 HeroIcon = {}
@@ -471,3 +474,4 @@ HeroIcon["Monkey King"] = "monkey_king.png"
 HeroIcon["Pang"] = "pangolier.png"
 HeroIcon["D Willow"] = "dark_willow.png"
 HeroIcon["Grimstroke"] = "grimstroke.png"
+HeroIcon["Mars"] = "other2.png"
